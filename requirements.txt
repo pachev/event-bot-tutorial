@@ -1,0 +1,3 @@
+tabulate
+discord.py
+SQLAlchemy
