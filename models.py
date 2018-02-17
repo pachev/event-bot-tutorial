@@ -24,7 +24,6 @@ class Attendance(Base):
 
 class Member(Base):
     __tablename__ = 'member'
-    __table_args__ = {'sqlite_autoincrement': True}
     id = Column(INTEGER, primary_key=True, nullable=False)
     name = Column(TEXT)
     avatar = Column(TEXT)

@@ -42,13 +42,44 @@ async def create(ctx, name: str, date: str, time: str='0:00am'):
         example: ?create party 12/22/2017 1:40pm
     '''
     server = ctx.message.server.name
-    date_time = '{} {}'.format(date, time) 
+    date_time = '{} {}'.format(date, time)
     try:
         event_date = datetime.strptime(date_time, '%m/%d/%Y %I:%M%p')
         event = Event(name=name, server=server, date=event_date)
         session.add(event)
         session.commit()
         await bot.say('Event {} created successfully for {}'.format(name, event.date))
+    except Exception as e:
+        await bot.say('Could not complete your command')
+        print(e)
+
+@bot.command(pass_context=True)
+async def attend(ctx, name: str):
+    '''Allows a user to attend an upcoming event
+        example: ?attend party
+    '''
+    author = ctx.message.author.name
+    avatar = ctx.message.author.avatar_url
+    id = ctx.message.author.id
+
+    try:
+        count = session.query(Member).filter(Member.id == id).count()
+        event = session.query(Event).filter(Event.name == name).first()
+
+        # Verify This event exists
+        if not event:
+            await bot.say('This event does not exist')
+            return
+
+        # Create member if they do not exist in our database
+        if count < 1:
+            member = Member(id=id, name=author, avatar=avatar)
+            session.add(member)
+
+        attending = Attendance(member_id=id, event_id=event.id)
+        session.add(attending)
+        session.commit()
+        await bot.say('Member {} is now attending event {}'.format(author, name))
     except Exception as e:
         await bot.say('Could not complete your command')
         print(e)
