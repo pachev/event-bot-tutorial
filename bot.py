@@ -84,6 +84,42 @@ async def attend(ctx, name: str):
         await bot.say('Could not complete your command')
         print(e)
 
+
+from tabulate import tabulate
+@bot.command()
+async def list():
+    '''Displays the list of current events
+        example: ?list
+    '''
+    try:
+        events = session.query(Event).order_by(Event.date).all()
+        headers = ['Name', 'Date', 'Server']
+        rows = [[e.name, e.date, e.server] for e in events]
+        table = tabulate(rows, headers)
+        await bot.say('```\n' + table + '```')
+    except Exception as e:
+        await bot.say('Could not complete your command')
+        print(e)
+
+@bot.command()
+async def view(name: str):
+    '''Displays information about a specific event
+        example: ?view party
+    '''
+    try:
+        event = session.query(Event).filter(Event.name == name).first()
+        # Verify This event exists
+        if not event:
+            await bot.say('This event does not exist')
+            return
+
+        attending = session.query(Attendance).filter(Attendance.event_id == event.id).count()
+        info = [['Name', event.name], ['Date', event.date], ['Server', event.server], ['Number Attending', attending]]
+        await bot.say('```\n' + tabulate(info) + '```')
+    except Exception as e:
+        await bot.say('Could not complete your command')
+        print(e)
+
 if __name__ == '__main__':
     try:
         bot.run(token)
