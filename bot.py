@@ -2,7 +2,7 @@ from os import getenv
 import discord
 from discord.ext import commands
 
-description = 'A seed bot that does nothing'
+description = 'A nice little event bot'
 bot = commands.Bot(command_prefix='?', description=description)
 token = getenv('BOT_TOKEN')
 
@@ -13,5 +13,13 @@ async def on_ready():
     print(bot.user.name)
     print('---------------')
     print('This bot is ready for action!')
+
+
+@bot.command(pass_context=True)
+async def ping(ctx):
+    '''Returns pong when called'''
+    author = ctx.message.author.name
+    server = ctx.message.server.name
+    await bot.say('Pong for {} from {}!'.format(author, server))
 
 bot.run(token)
